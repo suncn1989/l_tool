@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+
 //xls
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -41,8 +42,9 @@ public class ExcelReader {
 		
 		//Read excel file 
 		
-		List<LotteryDto> list = excelReader.readXls("./" + name + "." + type);
+		List<LotteryDto> list = excelReader.readXls("../lottery_data/" + name + "." + type);
 		
+		excelReader.readAllFileName("../lottery_data");
 
 		
 		//System.out.println(list.size());
@@ -289,6 +291,39 @@ public class ExcelReader {
 		String[] temp = result.split("\\[");
 		splited_content = temp[0];
 		return splited_content;
+	}
+	
+	//split by .
+	private String[] splitResultDot(String result)
+	{
+		String[] temp = result.split(".");
+		return temp;
+	}
+	
+	//Read all file names
+	private List<String> readAllFileName(String path)
+	{
+		File file = new File(path);
+		File[] array = file.listFiles();
+		
+		List<String> fileNames = new ArrayList<String>();
+		for(int i=0; i<array.length; i++)
+		{
+			if(array[i].isFile())
+			{
+				fileNames.add(array[i].getName());
+				System.out.println(array[i].getName());
+			}
+		}
+		
+		return fileNames;
+		
+		
+	}
+	
+	private void analyseData(String filename)
+	{
+		
 	}
 	
 }
