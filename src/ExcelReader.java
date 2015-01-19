@@ -29,62 +29,26 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class ExcelReader {
 
-	public static String type = "xls";
-	public static String name = "16.006-012";
+	//public static String type = "xls";
+	//public static String name = "16.006-012";
 	
 	public static void main(String[] args) throws IOException
 	{
 		ExcelReader excelReader = new ExcelReader();
 		
-		System.out.println("!!!!!");
+		List<String> filenames = excelReader.readAllFileName("../lottery_data");
 		
-		LotteryDto lxls = null;
-		
-		//Read excel file 
-		
-		List<LotteryDto> list = excelReader.readXls("../lottery_data/" + name + "." + type);
-		
-		excelReader.readAllFileName("../lottery_data");
-
-		
-		//System.out.println(list.size());
-		
-		//obtain list contents
-		int total = list.size();
-		int zhuang = 0;
-		int xian = 0;
-		
-		for (int j=0; j<list.size(); j++)
-		{
-			lxls = (LotteryDto) list.get(j);
-			String finalResult = excelReader.splitResult(lxls.getResult());
-			
-			if (finalResult.equals("в╞"))
-			{
-				zhuang++;
-			}
-			else if (finalResult.equals("оп"))
-			{
-				xian++;
-			}
-			
-			//System.out.println("************" + finalResult);
+		for(int i=0; i<filenames.size(); i++)
+		{	
+			String nameOfFile = filenames.get(i);
+			System.out.println(" ");
+			System.out.println("Analysing " + nameOfFile + ".....................");
+			excelReader.analyseData(excelReader, nameOfFile);
 		}
 		
-		System.out.println("Total number: " + total);
-		System.out.println("***zhuang: " + zhuang);
-		System.out.println("*****xian: " + xian);
-		
-		float ratio_zhuang = (float)zhuang/total;
-		float ratio_xian = (float)xian/total;
-		
-		System.out.println("****ratio_zhuang: " + ratio_zhuang);
-		
-		System.out.println("****ratio_xian: " + ratio_xian);
-
 	}
 	
-	private List<LotteryDto> readXls(String filepath) throws IOException
+	private List<LotteryDto> readXls(String filepath , String type, int flag) throws IOException
 	{
 		InputStream is = new FileInputStream(filepath);
 		
@@ -95,7 +59,7 @@ public class ExcelReader {
 		 * different between xls & xlsx
 		 */
 		
-		if (type == "xls")
+		if (type.equals("xls"))
 		{
 			HSSFWorkbook hssfworkbook = new HSSFWorkbook(is);
 			
@@ -114,7 +78,7 @@ public class ExcelReader {
 				/*
 				 * row
 				 */
-				System.out.println("***"+hssfSheet.getLastRowNum());
+				//System.out.println("***"+hssfSheet.getLastRowNum());
 				
 				for (int rowNum =1; rowNum <= hssfSheet.getLastRowNum(); rowNum++)
 				{
@@ -129,51 +93,24 @@ public class ExcelReader {
 					/*
 					 * cell
 					 */
-					/*
-					HSSFCell ch = hssfRow.getCell(10);
-					if (ch == null)
-					{
-						continue;
-					}
-					lotteryDto.setChoice(getValue(ch));
-					
-					//System.out.println("#####"+ getValue(ch));
-					
-					HSSFCell bm = hssfRow.getCell(11);
-					if (bm == null)
-					{
-						continue;
-					}
-					if (bm.getCellType() == bm.CELL_TYPE_NUMERIC)
-					{
-						lotteryDto.setBuyed_money((int)bm.getNumericCellValue());
-					}
-					else
-					{
-						lotteryDto.setBuyed_money(Integer.parseInt(getValue(bm)));
-					}
-					
-					HSSFCell rm = hssfRow.getCell(12);
-					if (rm == null)
-					{
-						continue;
-					}
-					if (rm.getCellType() == rm.CELL_TYPE_NUMERIC)
-					{
-						lotteryDto.setResult_money((int)rm.getNumericCellValue());
-					}
-					else
-					{
-						lotteryDto.setResult_money(Integer.parseInt(getValue(rm)));
-					}
-					
-					//System.out.println("&&&&&&"+ getValue(rm));
-					*/
 					
 					/*Modified for new requirement.*/
+					//Differ by the first letter in filename.
+					HSSFCell cell_result;
+					if (flag == 1)
+					{
+						cell_result = hssfRow.getCell(7);
+					}
+					else if (flag == 2)
+					{
+						cell_result = hssfRow.getCell(10);
+					}
+					else
+					{
+						cell_result = hssfRow.getCell(9);
+					}
 					
-					//HSSFCell cell_result = hssfRow.getCell(7);
-					HSSFCell cell_result = hssfRow.getCell(9);
+					
 					if (cell_result == null)
 					{
 						continue;
@@ -188,7 +125,7 @@ public class ExcelReader {
 			}
 		}
 		
-		else if (type == "xlsx")
+		else if (type.equals("xlsx"))
 		{
 			XSSFWorkbook xssfWorkbook = new XSSFWorkbook(filepath);
 			
@@ -207,7 +144,7 @@ public class ExcelReader {
 				/*
 				 * row
 				 */
-				System.out.println("***"+xssfSheet.getLastRowNum());
+				//System.out.println("***"+xssfSheet.getLastRowNum());
 				
 				for (int rowNum =1; rowNum <= xssfSheet.getLastRowNum(); rowNum++)
 				{
@@ -223,7 +160,18 @@ public class ExcelReader {
 					 * cell
 					 */
 					
-					XSSFCell cell_result = xssfRow.getCell(7);
+					//XSSFCell cell_result = xssfRow.getCell(7);
+					//Differ by the first letter in filename.
+					XSSFCell cell_result;
+					if (flag == 1)
+					{
+						cell_result = xssfRow.getCell(7);
+					}
+					else
+					{
+						cell_result = xssfRow.getCell(9);
+					}
+					
 					if (cell_result == null)
 					{
 						continue;
@@ -238,9 +186,6 @@ public class ExcelReader {
 			}
 			
 		}
-		
-		
-		
 		
 		return list;
 	}
@@ -300,6 +245,31 @@ public class ExcelReader {
 		return temp;
 	}
 	
+	//Get the name of the file, separated by .
+	private String getName(String filename)
+	{
+		String tempName = "";
+		String[] temp = filename.split("\\.");
+		for (int i=0; i<temp.length-1; i++)
+		{
+			tempName = tempName + temp[i] + ".";
+		}
+		
+		//System.out.println("@@@@@@@@@@@@@@@@" + tempName);
+		
+		return tempName;
+	}
+	
+	//Get the type of the file, separated by .
+	private String getType(String filename)
+	{
+		String tempType;
+		String[] temp = filename.split("\\.");
+		tempType = temp[temp.length - 1];
+		
+		return tempType;
+	}
+	
 	//Read all file names
 	private List<String> readAllFileName(String path)
 	{
@@ -321,9 +291,70 @@ public class ExcelReader {
 		
 	}
 	
-	private void analyseData(String filename)
+	private void analyseData(ExcelReader excelReader, String filename) throws IOException
 	{
 		
+		//String[] temSplit = excelReader.splitResultDot(filename);
+		
+		String name = excelReader.getName(filename);
+		String type = excelReader.getType(filename);
+		
+		int flag = 0;
+		if (name.substring(0, 1).equals("B"))
+		{
+			flag = 1;
+		}
+		else if (name.substring(0,1).equals("C"))
+		{
+			flag = 2;
+		}
+
+		
+		LotteryDto lxls = null;
+		
+		//Read excel file 
+		
+		String filePath = "../lottery_data/" + name + type;
+		
+		List<LotteryDto> list = excelReader.readXls(filePath, type, flag);
+
+		//excelReader.readAllFileName("../lottery_data");
+
+		
+		//System.out.println(list.size());
+		
+		//obtain list contents
+		int total = list.size();
+		int zhuang = 0;
+		int xian = 0;
+		
+		for (int j=0; j<list.size(); j++)
+		{
+			lxls = (LotteryDto) list.get(j);
+			String finalResult = excelReader.splitResult(lxls.getResult());
+			
+			if (finalResult.equals("в╞") || finalResult.equals("в╞ "))
+			{
+				zhuang++;
+			}
+			else if (finalResult.equals("оп") || finalResult.equals("оп "))
+			{
+				xian++;
+			}
+			
+			//System.out.println("************" + finalResult);
+		}
+		
+		System.out.println("Total number: " + total);
+		System.out.println("***zhuang: " + zhuang);
+		System.out.println("*****xian: " + xian);
+		
+		float ratio_zhuang = (float)zhuang/total;
+		float ratio_xian = (float)xian/total;
+		
+		System.out.println("****ratio_zhuang: " + ratio_zhuang);
+		
+		System.out.println("****ratio_xian: " + ratio_xian);
 	}
 	
 }
