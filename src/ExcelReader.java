@@ -43,28 +43,53 @@ public class ExcelReader {
 		
 		List<String> filenames = excelReader.readAllFileName("../lottery_data");
 		
+		int totalnumber = 0;
+		
 		for(int i=0; i<filenames.size(); i++)
 		{	
 			String nameOfFile = filenames.get(i);
 			System.out.println(" ");
 			System.out.println("Analysing " + nameOfFile + ".....................");
-			excelReader.analyseData(excelReader, nameOfFile);
+			totalnumber = excelReader.analyseData(excelReader, nameOfFile);
 		}
 		
 		System.out.println(" ");
 		System.out.println("Size of the saving list: " + excelReader.resultContent.size());
 		
 		int selectedSize = 3000;
-		List<Integer> generatedRandomNum = randomSelect.GenRandomNum(selectedSize);
+		List<Integer> generatedRandomNum = randomSelect.GenRandomNum(totalnumber-1);
 		List<String> finalSelectedNum = new ArrayList<String>();
-		System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS");
+		//System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS");
 		for(int i=0; i<selectedSize; i++)
 		{
-			int index = generatedRandomNum.get(i);
-			//System.out.print(index + " ");
-			
+			int index = generatedRandomNum.get(i).intValue();
+			System.out.println(index + " ");
+
 			finalSelectedNum.add(excelReader.resultContent.get(index));
 		}
+		
+		//test
+		/*
+		try
+		{
+			FileWriter fileWriter = new FileWriter("./data1.log");
+			for(int i=0; i<selectedSize; i++)
+			{
+				int index = generatedRandomNum.get(i).intValue();
+				//System.out.print(index + " ");
+				fileWriter.write(index);
+				fileWriter.write("\n");
+				
+			}
+			fileWriter.close(); // 关闭数据流
+		}
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		//test
 		
 		//System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS" + finalSelectedNum.size());
 		
@@ -91,6 +116,28 @@ public class ExcelReader {
 			e.printStackTrace();
 		}
 		
+		int totalMoney = 10000*3000;
+		int moneyzhuang = 0;
+		int moneyxian = 0;
+		
+		for (int i=0; i<selectedSize; i++)
+		{
+			String s = finalSelectedNum.get(i);
+			if (s.equals("庄"))
+			{
+				totalMoney = totalMoney + 10000 - 500 + 110;
+				moneyzhuang ++;
+			}
+			else if (s.equals("闲"))
+			{
+				totalMoney = totalMoney - 10000 + 110;
+				moneyxian++;
+			}
+		}
+		
+		System.out.println("!!!!!!!!!!!!!! total money: " + totalMoney);
+		System.out.println("!!!!!!!!!!!!!! zhuang times: " + moneyzhuang);
+		System.out.println("!!!!!!!!!!!!!! xian times: " + moneyxian);
 		
 	}
 	
@@ -337,10 +384,12 @@ public class ExcelReader {
 		
 	}
 	
-	private void analyseData(ExcelReader excelReader, String filename) throws IOException
+	private int analyseData(ExcelReader excelReader, String filename) throws IOException
 	{
 		
 		//String[] temSplit = excelReader.splitResultDot(filename);
+		
+		int length = 0;
 		
 		String name = excelReader.getName(filename);
 		String type = excelReader.getType(filename);
@@ -403,6 +452,10 @@ public class ExcelReader {
 		System.out.println("****ratio_zhuang: " + ratio_zhuang);
 		
 		System.out.println("****ratio_xian: " + ratio_xian);
+		
+		length = total;
+		
+		return length;
 	}
 	
 	
