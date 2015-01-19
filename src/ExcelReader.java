@@ -5,6 +5,7 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import java.util.List;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+
 
 
 //xls
@@ -31,10 +34,12 @@ public class ExcelReader {
 
 	//public static String type = "xls";
 	//public static String name = "16.006-012";
-	
+	public List<String> resultContent = new ArrayList<String>();
+
 	public static void main(String[] args) throws IOException
 	{
 		ExcelReader excelReader = new ExcelReader();
+		RandomSelect randomSelect = new RandomSelect();
 		
 		List<String> filenames = excelReader.readAllFileName("../lottery_data");
 		
@@ -45,6 +50,47 @@ public class ExcelReader {
 			System.out.println("Analysing " + nameOfFile + ".....................");
 			excelReader.analyseData(excelReader, nameOfFile);
 		}
+		
+		System.out.println(" ");
+		System.out.println("Size of the saving list: " + excelReader.resultContent.size());
+		
+		int selectedSize = 3000;
+		List<Integer> generatedRandomNum = randomSelect.GenRandomNum(selectedSize);
+		List<String> finalSelectedNum = new ArrayList<String>();
+		System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS");
+		for(int i=0; i<selectedSize; i++)
+		{
+			int index = generatedRandomNum.get(i);
+			//System.out.print(index + " ");
+			
+			finalSelectedNum.add(excelReader.resultContent.get(index));
+		}
+		
+		//System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS" + finalSelectedNum.size());
+		
+		try
+		{
+			FileWriter fileWriter = new FileWriter("./data.log");
+			/*
+			String s = new String("This is a test!  \n" + "aaaa");
+			fileWriter.write(s);
+			String b = new String("test !!!!!!");
+			fileWriter.write(b);
+			*/
+			for (int i=0; i<selectedSize; i++)
+			{
+				String s = finalSelectedNum.get(i);
+				fileWriter.write(s);
+				fileWriter.write("\n");
+			}
+			fileWriter.close(); // 关闭数据流
+		}
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		
 	}
 	
@@ -332,7 +378,9 @@ public class ExcelReader {
 		{
 			lxls = (LotteryDto) list.get(j);
 			String finalResult = excelReader.splitResult(lxls.getResult());
-			
+			//Push result into the saving list.
+			excelReader.resultContent.add(finalResult);
+
 			if (finalResult.equals("庄") || finalResult.equals("庄 "))
 			{
 				zhuang++;
@@ -356,5 +404,6 @@ public class ExcelReader {
 		
 		System.out.println("****ratio_xian: " + ratio_xian);
 	}
+	
 	
 }
