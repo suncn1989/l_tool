@@ -36,6 +36,8 @@ public class ExcelReader {
 	//public static String name = "16.006-012";
 	public List<String> resultContent = new ArrayList<String>();
 
+	public static int acc = 0;
+	
 	public static void main(String[] args) throws IOException
 	{
 		ExcelReader excelReader = new ExcelReader();
@@ -50,72 +52,32 @@ public class ExcelReader {
 			String nameOfFile = filenames.get(i);
 			System.out.println(" ");
 			System.out.println("Analysing " + nameOfFile + ".....................");
-			totalnumber = excelReader.analyseData(excelReader, nameOfFile);
+			excelReader.analyseData(excelReader, nameOfFile);
 		}
 		
-		System.out.println(" ");
-		System.out.println("Size of the saving list: " + excelReader.resultContent.size());
+		totalnumber = excelReader.resultContent.size();
 		
+		System.out.println(" ");
+		System.out.println("Size of the saving list: " + totalnumber);
+		
+for (int runtime = 0; runtime < 50; runtime++)
+{
+//Earned money!!!		
 		int selectedSize = 3000;
-		List<Integer> generatedRandomNum = randomSelect.GenRandomNum(totalnumber-1);
+		List<Integer> generatedRandomNum = randomSelect.GenRandomNum(totalnumber);
 		List<String> finalSelectedNum = new ArrayList<String>();
 		//System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS");
 		for(int i=0; i<selectedSize; i++)
 		{
 			int index = generatedRandomNum.get(i).intValue();
-			System.out.println(index + " ");
+			//System.out.println(index + " ");
 
 			finalSelectedNum.add(excelReader.resultContent.get(index));
 		}
 		
-		//test
-		/*
-		try
-		{
-			FileWriter fileWriter = new FileWriter("./data1.log");
-			for(int i=0; i<selectedSize; i++)
-			{
-				int index = generatedRandomNum.get(i).intValue();
-				//System.out.print(index + " ");
-				fileWriter.write(index);
-				fileWriter.write("\n");
-				
-			}
-			fileWriter.close(); // 关闭数据流
-		}
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		//test
-		
-		//System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS" + finalSelectedNum.size());
-		
-		try
-		{
-			FileWriter fileWriter = new FileWriter("./data.log");
-			/*
-			String s = new String("This is a test!  \n" + "aaaa");
-			fileWriter.write(s);
-			String b = new String("test !!!!!!");
-			fileWriter.write(b);
-			*/
-			for (int i=0; i<selectedSize; i++)
-			{
-				String s = finalSelectedNum.get(i);
-				fileWriter.write(s);
-				fileWriter.write("\n");
-			}
-			fileWriter.close(); // 关闭数据流
-		}
-		catch (IOException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		//Write selected data into data.log file.
+		excelReader.savegResultData(selectedSize, finalSelectedNum, "./date.log");
+
 		int totalMoney = 10000*3000;
 		int moneyzhuang = 0;
 		int moneyxian = 0;
@@ -123,22 +85,32 @@ public class ExcelReader {
 		for (int i=0; i<selectedSize; i++)
 		{
 			String s = finalSelectedNum.get(i);
-			if (s.equals("庄"))
+			if (s.equals("庄") || s.equals("庄 "))
 			{
 				totalMoney = totalMoney + 10000 - 500 + 110;
 				moneyzhuang ++;
 			}
-			else if (s.equals("闲"))
+			else if (s.equals("闲") || s.equals("闲 "))
 			{
 				totalMoney = totalMoney - 10000 + 110;
 				moneyxian++;
 			}
 		}
 		
+		int earnedMoney = totalMoney - 10000*3000;
+		
 		System.out.println("!!!!!!!!!!!!!! total money: " + totalMoney);
 		System.out.println("!!!!!!!!!!!!!! zhuang times: " + moneyzhuang);
 		System.out.println("!!!!!!!!!!!!!! xian times: " + moneyxian);
+		System.out.println("!!!!!!!!!!!!!! earned money: " + earnedMoney);
 		
+		acc = acc + earnedMoney;
+		
+		excelReader.saveEarnedMoney(totalMoney, moneyzhuang, moneyxian, earnedMoney, "./result.log");
+//Earned money!!!
+}		
+	System.out.println("@@@@@@@@@@@After rounds, final result: " + acc);
+
 	}
 	
 	private List<LotteryDto> readXls(String filepath , String type, int flag) throws IOException
@@ -458,5 +430,56 @@ public class ExcelReader {
 		return length;
 	}
 	
+	private void savegResultData(int selectedSize,List<String> finalSelectedNum, String filename )
+	{
+		try
+		{
+			FileWriter fileWriter = new FileWriter(filename);
+			/*
+			String s = new String("This is a test!  \n" + "aaaa");
+			fileWriter.write(s);
+			String b = new String("test !!!!!!");
+			fileWriter.write(b);
+			*/
+			for (int i=0; i<selectedSize; i++)
+			{
+				String s = finalSelectedNum.get(i);
+				fileWriter.write(s);
+				fileWriter.write("\n");
+			}
+			fileWriter.close(); // 关闭数据流
+		}
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void saveEarnedMoney(int totalMoney, int zhuangTimes, int xianTimes, int earnedMoney, String filename )
+	{
+		try
+		{
+			FileWriter fileWriter = new FileWriter(filename , true);
+			/*
+			String s = new String("This is a test!  \n" + "aaaa");
+			fileWriter.write(s);
+			String b = new String("test !!!!!!");
+			fileWriter.write(b);
+			*/
+
+			fileWriter.write("!!!!!!!!!!!!!! total money: " + totalMoney + "\n");
+			fileWriter.write("!!!!!!!!!!!!!! zhuang times: " + zhuangTimes + "\n");
+			fileWriter.write("!!!!!!!!!!!!!! xian times: " + xianTimes + "\n");
+			fileWriter.write("!!!!!!!!!!!!!! earned money: " + earnedMoney + "\n");
+			fileWriter.write("\n");
+			fileWriter.close(); // 关闭数据流
+		}
+		catch (IOException e) 
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
 }
