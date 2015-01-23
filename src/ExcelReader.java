@@ -36,7 +36,7 @@ public class ExcelReader {
 	//public static String name = "16.006-012";
 	public List<String> resultContent = new ArrayList<String>();
 
-	public static int acc = 0;
+	public static double acc = 0;
 	
 	public static void main(String[] args) throws IOException
 	{
@@ -60,7 +60,11 @@ public class ExcelReader {
 		System.out.println(" ");
 		System.out.println("Size of the saving list: " + totalnumber);
 		
-for (int runtime = 0; runtime < 50; runtime++)
+		//Run all zhuang for several times.
+		excelReader.runAllZhuang(excelReader, randomSelect, totalnumber);
+		
+/*		
+for (int runtime = 0; runtime < 500; runtime++)
 {
 //Earned money!!!		
 		int selectedSize = 3000;
@@ -97,7 +101,7 @@ for (int runtime = 0; runtime < 50; runtime++)
 			}
 		}
 		
-		int earnedMoney = totalMoney - 10000*3000;
+		int earnedMoney = totalMoney - 100*3000;
 		
 		System.out.println("!!!!!!!!!!!!!! total money: " + totalMoney);
 		System.out.println("!!!!!!!!!!!!!! zhuang times: " + moneyzhuang);
@@ -108,9 +112,67 @@ for (int runtime = 0; runtime < 50; runtime++)
 		
 		excelReader.saveEarnedMoney(totalMoney, moneyzhuang, moneyxian, earnedMoney, "./result.log");
 //Earned money!!!
-}		
+}
 	System.out.println("@@@@@@@@@@@After rounds, final result: " + acc);
+*/
+	}
+	
+	private void runAllZhuang(ExcelReader excelReader, RandomSelect randomSelect, int totalnumber)
+	{
+		for (int runtime = 0; runtime < 500; runtime++)
+		{
+		//Earned money!!!		
+				int selectedSize = 3000;
+				List<Integer> generatedRandomNum = randomSelect.GenRandomNum(totalnumber);
+				List<String> finalSelectedNum = new ArrayList<String>();
+				//System.out.println("SSSSSSSSSSSSSSSSSSSSSSSSS");
+				for(int i=0; i<selectedSize; i++)
+				{
+					int index = generatedRandomNum.get(i).intValue();
+					//System.out.println(index + " ");
 
+					finalSelectedNum.add(excelReader.resultContent.get(index));
+				}
+				
+				//Write selected data into data.log file.
+				excelReader.savegResultData(selectedSize, finalSelectedNum, "./date.log");
+				
+				double perMoney = 100;
+				double totalMoney = perMoney*selectedSize;
+				int moneyzhuang = 0;
+				int moneyxian = 0;
+				
+				for (int i=0; i<selectedSize; i++)
+				{
+					String s = finalSelectedNum.get(i);
+					if (s.equals("в╞") || s.equals("в╞ "))
+					{
+						totalMoney = totalMoney + perMoney - perMoney*5/100 + perMoney*1.1/100;
+						moneyzhuang ++;
+					}
+					else if (s.equals("оп") || s.equals("оп "))
+					{
+						totalMoney = totalMoney - perMoney + perMoney*1.1/100;
+						moneyxian++;
+					}
+				}
+				
+				double earnedMoney = totalMoney - perMoney*selectedSize;
+				
+				System.out.println("!!!!!!!!!!!!!! total money: " + totalMoney);
+				System.out.println("!!!!!!!!!!!!!! zhuang times: " + moneyzhuang);
+				System.out.println("!!!!!!!!!!!!!! xian times: " + moneyxian);
+				System.out.println("!!!!!!!!!!!!!! earned money: " + earnedMoney);
+				
+				acc = acc + earnedMoney;
+				
+				excelReader.saveEarnedMoney(totalMoney, moneyzhuang, moneyxian, earnedMoney, "./result.log");
+		//Earned money!!!
+		}
+			java.text.NumberFormat nf = java.text.NumberFormat.getInstance();
+			nf.setGroupingUsed(false);
+			//nf.setMaximumFractionDigits(5);
+			System.out.println("@@@@@@@@@@@After rounds, final result: " + nf.format(acc));
 	}
 	
 	private List<LotteryDto> readXls(String filepath , String type, int flag) throws IOException
@@ -456,7 +518,7 @@ for (int runtime = 0; runtime < 50; runtime++)
 		}
 	}
 	
-	private void saveEarnedMoney(int totalMoney, int zhuangTimes, int xianTimes, int earnedMoney, String filename )
+	private void saveEarnedMoney(double totalMoney, double zhuangTimes, double xianTimes, double earnedMoney, String filename )
 	{
 		try
 		{
